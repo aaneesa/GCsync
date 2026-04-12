@@ -1,4 +1,4 @@
-```markdown
+
 # Ground Control Dashboard (GCsync)
 
 A real-time robotics control and monitoring dashboard built with modern frontend architecture and strong software engineering principles. GCsync enables an operator to **control**, **monitor**, and **visualize** robot behavior using **live telemetry data**.
@@ -9,11 +9,9 @@ A real-time robotics control and monitoring dashboard built with modern frontend
 
 The application follows a clean, structured data flow:
 
-```
-
 Robot Hardware → Telemetry → WebSocket → CommBridge → Zustand Store → UI Panels
 
-```
+
 
 - UI components **never fetch data directly**
 - All data flows through a **centralized global state**
@@ -139,7 +137,6 @@ All UI panels subscribe to the global state and update reactively.
 
 ## Project Structure
 
-```
 
 /src
 ├── app/
@@ -150,7 +147,7 @@ All UI panels subscribe to the global state and update reactively.
 ├── hooks/
 └── lib/
 
-```
+
 
 ---
 
@@ -169,4 +166,4 @@ All UI panels subscribe to the global state and update reactively.
 - AI-based anomaly detection
 - Cloud-based telemetry storage
 - Camera integration
-```
+
