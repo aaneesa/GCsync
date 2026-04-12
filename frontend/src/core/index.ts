@@ -1,4 +1,5 @@
 export { DashboardPanel } from './DashboardPanel';
+export { GCsyncUI } from './GCsyncUI';
 export { ControlPanel } from './ControlPanel';
 export { SpatialVisualizer } from './SpatialVisualizer';
 export { HealthMonitor } from './HealthMonitor';
