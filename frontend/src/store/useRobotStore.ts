@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { RobotState, type TelemetrySnapshot, type HealthAlert, type LidarPoint } from '../core';
+import { RobotState, GCsyncUI, type TelemetrySnapshot, type HealthAlert, type LidarPoint } from '../core';
 
 export interface RobotStoreState {
     motorData: number[];
@@ -20,6 +20,8 @@ export interface RobotStoreState {
     isArmed: boolean;
     emergencyStopped: boolean;
 
+    connectionStatus: string;
+
     telemetryHistory: TelemetrySnapshot[];
     logs: string[];
 
@@ -39,6 +41,8 @@ export interface RobotStoreState {
 }
 
 const robotState = new RobotState();
+const gcSyncUI = new GCsyncUI();
+gcSyncUI.init();
 
 export const useRobotStore = create<RobotStoreState>((set, get) => ({
     motorData: [0, 0],
@@ -54,26 +58,31 @@ export const useRobotStore = create<RobotStoreState>((set, get) => ({
     isConnected: false,
     isArmed: false,
     emergencyStopped: false,
+    connectionStatus: 'disconnected',
     telemetryHistory: [],
     logs: [],
 
     updateMotorData: (data) => {
         robotState.motorData = data;
+        gcSyncUI.updateAllPanels({ motorData: data });
         set({ motorData: data });
     },
 
     updateEncoderTicks: (ticks) => {
         robotState.encoderTicks = ticks;
+        gcSyncUI.updateAllPanels({ ticks });
         set({ encoderTicks: ticks });
     },
 
     updateSpatial: (points, heading, pitch, roll) => {
+        gcSyncUI.updateAllPanels({ lidarPoints: points, heading, pitch, roll });
         set({ lidarPoints: points, heading, pitch, roll });
     },
 
     updateHealth: (voltage, battery) => {
         robotState.voltage = voltage;
         robotState.batteryPercent = battery;
+        gcSyncUI.updateAllPanels({ voltage, batteryPercent: battery });
         set({ voltage, batteryPercent: battery });
     },
 
@@ -83,7 +92,12 @@ export const useRobotStore = create<RobotStoreState>((set, get) => ({
     },
 
     setConnected: (connected) => {
-        set({ isConnected: connected });
+        if (connected) {
+            gcSyncUI.handleConnect();
+        } else {
+            gcSyncUI.handleDisconnect();
+        }
+        set({ isConnected: connected, connectionStatus: connected ? 'connected' : 'disconnected' });
         const state = get();
         state.addLog(connected ? '🟢 Connected to robot' : '🔴 Disconnected from robot');
     },
@@ -99,6 +113,7 @@ export const useRobotStore = create<RobotStoreState>((set, get) => ({
     },
 
     emergencyStop: () => {
+        gcSyncUI.triggerEmergencyStop();
         set({ isArmed: false, emergencyStopped: true, motorData: [0, 0] });
         const state = get();
         state.addLog('🛑 EMERGENCY STOP ENGAGED');
@@ -111,6 +126,7 @@ export const useRobotStore = create<RobotStoreState>((set, get) => ({
     },
 
     resetEmergencyStop: () => {
+        gcSyncUI.resetEmergencyStop();
         set({ emergencyStopped: false });
         get().addLog('✅ Emergency stop reset');
     },

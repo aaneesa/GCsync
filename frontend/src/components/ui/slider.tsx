@@ -36,18 +36,19 @@ function Slider({
     >
       <SliderPrimitive.Track
         data-slot="slider-track"
-        className="relative grow overflow-hidden rounded-full bg-muted data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1"
+        className="relative grow overflow-hidden rounded-full bg-zinc-700/40 data-horizontal:h-1.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5"
       >
         <SliderPrimitive.Range
           data-slot="slider-range"
-          className="absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full"
+          className="absolute select-none data-horizontal:h-full data-vertical:w-full rounded-full"
+          style={{ background: 'linear-gradient(90deg, #06b6d4, #3b82f6)' }}
         />
       </SliderPrimitive.Track>
       {Array.from({ length: _values.length }, (_, index) => (
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
           key={index}
-          className="relative block size-3 shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"
+          className="relative block size-4 shrink-0 rounded-full border-2 border-cyan-400 bg-zinc-900 shadow-[0_0_8px_rgba(34,211,238,0.4)] ring-cyan-400/30 transition-all duration-200 select-none after:absolute after:-inset-2 hover:ring-4 hover:shadow-[0_0_14px_rgba(34,211,238,0.5)] focus-visible:ring-4 focus-visible:outline-hidden active:ring-4 active:scale-110 disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
     </SliderPrimitive.Root>
