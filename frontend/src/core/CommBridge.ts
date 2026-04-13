@@ -1,4 +1,4 @@
-import type { LidarPoint } from './SpatialVisualizer';
+import type { LidarPoint } from "./SpatialVisualizer";
 
 export interface TelemetryPacket {
     type: 'telemetry';
@@ -11,7 +11,7 @@ export interface TelemetryPacket {
 
 export interface SpatialPacket {
     type: 'spatial';
-    lidarPoints: LidarPoint[];
+    lidarPoints: LidarPoint[]; 
     heading: number;
     pitch: number;
     roll: number;
@@ -23,99 +23,86 @@ export interface StatusPacket {
 }
 
 export type RobotPacket = TelemetryPacket | SpatialPacket | StatusPacket;
-
 export type PacketHandler = (packet: RobotPacket) => void;
 
 export class CommBridge {
-    private ws: WebSocket | null = null;
-    private url: string;
+    private ipAddress: string;
+    private port: number;
+    private isConnected: boolean;
+    private static instance: CommBridge;
+
     private onPacket: PacketHandler;
     private onStatusChange: (connected: boolean) => void;
-    private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    private ws: WebSocket | null = null;
 
-    constructor(
-        url: string,
+    private constructor(
+        ipAddress: string,
+        port: number,
         onPacket: PacketHandler,
-        onStatusChange: (connected: boolean) => void,
+        onStatusChange: (connected: boolean) => void
     ) {
-        this.url = url;
+        this.ipAddress = ipAddress;
+        this.port = port;
         this.onPacket = onPacket;
         this.onStatusChange = onStatusChange;
+        this.isConnected = false;
     }
 
-    connect(): void {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
+    public static getInstance(
+        ipAddress?: string,
+        port?: number,
+        onPacket?: PacketHandler,
+        onStatusChange?: (connected: boolean) => void
+    ): CommBridge {
+        if (!CommBridge.instance) {
+            if (!ipAddress || !port || !onPacket || !onStatusChange) {
+                throw new Error("Initial call to getInstance must provide arguments");
+            }
+            CommBridge.instance = new CommBridge(ipAddress, port, onPacket, onStatusChange);
+        }
+        return CommBridge.instance;
+    }
 
-        try {
-            this.ws = new WebSocket(this.url);
+    public connect(): void {
+        if (this.ws) return;
 
-            this.ws.onopen = () => {
-                console.log('[CommBridge] ✅ Connected to', this.url);
-                this.onStatusChange(true);
-            };
+        this.ws = new WebSocket(`ws://${this.ipAddress}:${this.port}`);
 
-            this.ws.onmessage = (event: MessageEvent) => {
-                const packet = this.parsePacket(event.data);
-                if (packet) this.onPacket(packet);
-            };
+        this.ws.onopen = () => {
+            this.isConnected = true;
+            this.onStatusChange(true);
+        };
 
-            this.ws.onclose = () => {
-                console.log('[CommBridge] ❌ Disconnected');
-                this.onStatusChange(false);
-                this.scheduleReconnect();
-            };
+        this.ws.onmessage = (event) => {
+            const packet = this.parsePacket(event.data);
+            if (packet) this.onPacket(packet);
+        };
 
-            this.ws.onerror = (err) => {
-                console.error('[CommBridge] WebSocket error:', err);
-                this.ws?.close();
-            };
-        } catch (err) {
-            console.error('[CommBridge] Failed to connect:', err);
+        this.ws.onclose = () => {
+            this.isConnected = false;
             this.onStatusChange(false);
-        }
+            this.ws = null;
+        };
     }
 
-    disconnect(): void {
-        if (this.reconnectTimer) {
-            clearTimeout(this.reconnectTimer);
-            this.reconnectTimer = null;
-        }
+    public disconnect(): void {
         if (this.ws) {
-            this.ws.onclose = null;
             this.ws.close();
             this.ws = null;
-            this.onStatusChange(false);
-            console.log('[CommBridge] 🔌 Manually disconnected');
         }
     }
 
-    parsePacket(raw: string): RobotPacket | null {
+    private parsePacket(raw: string): RobotPacket | null {
         try {
-            const data = JSON.parse(raw);
-            if (data && typeof data.type === 'string') {
-                return data as RobotPacket;
-            }
-            console.warn('[CommBridge] Unknown packet shape:', data);
-            return null;
+            return JSON.parse(raw) as RobotPacket;
         } catch {
-            console.warn('[CommBridge] Failed to parse message:', raw);
             return null;
         }
     }
 
-    sendRaw(command: Record<string, unknown>): boolean {
-        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-            console.warn('[CommBridge] Cannot send — not connected');
-            return false;
+    private sendRaw(command: Record<string, unknown>): void {
+        if (this.ws && this.isConnected) {
+            this.ws.send(JSON.stringify(command));
         }
-        this.ws.send(JSON.stringify(command));
-        return true;
-    }
-
-    private scheduleReconnect(): void {
-        this.reconnectTimer = setTimeout(() => {
-            console.log('[CommBridge] Attempting reconnect...');
-            this.connect();
-        }, 3000);
     }
 }
