@@ -168,7 +168,7 @@ Handles:
 
 ## Project Structure
 
-
+```
 frontend/
 ├── dist/
 │ ├── assets/
@@ -241,7 +241,7 @@ frontend/
 ├── vite.config.ts
 ├── .gitignore
 └── README.md
-
+```
 ---
 
 ## SDLC Approach
