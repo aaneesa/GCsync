@@ -1,50 +1,48 @@
 
 # Ground Control Dashboard (GCsync)
 
-A real-time robotics control and monitoring dashboard built with modern frontend architecture and strong software engineering principles. GCsync enables an operator to **control**, **monitor**, and **visualize** robot behavior using **live telemetry data**.
+A real-time robotics control and monitoring dashboard designed using modern frontend architecture and strong software engineering principles. The system enables an operator to control, monitor, and visualize robot behavior using live telemetry data.
 
 ---
 
 ## Overview
 
-The application follows a clean, structured data flow:
+The application follows a structured data flow:
+
 
 Robot Hardware → Telemetry → WebSocket → CommBridge → Zustand Store → UI Panels
 
 
-
-- UI components **never fetch data directly**
-- All data flows through a **centralized global state**
-- Ensures consistency, scalability, and predictable updates
+- UI components do not fetch data directly  
+- All data is managed through a centralized state for consistency and scalability  
 
 ---
 
 ## Tech Stack
 
-- **Next.js (App Router)**
-- **React + TypeScript**
-- **Zustand** — State Management
-- **Tailwind CSS + ShadCN UI**
-- **WebSocket** — Real-time communication
-- **React Three Fiber** — LiDAR visualization
-- **Recharts** — Telemetry graphs
+- Next.js (App Router)  
+- React with TypeScript  
+- Zustand (State Management)  
+- Tailwind CSS with ShadCN UI  
+- WebSocket (Real-time communication)  
+- React Three Fiber (LiDAR visualization)  
+- Recharts (Telemetry graphs)  
 
 ---
 
 ## System Design
 
-The system design is documented using:
+The system is modeled using:
 
-- **ER Diagram** — Data relationships
-- **Class Diagrams** — Robot and dashboard layers
-- **Use Case Diagram** — Operator interactions
+- ER Diagram (data relationships)  
+- Class Diagrams (robot + dashboard layers)  
+- Use Case Diagram (operator interactions)  
 
 The architecture emphasizes:
-- Object-Oriented Design
-- Separation of Concerns
-- Modular structure
 
----
+- Object-oriented design  
+- Modular separation of concerns  
+
 
 ## OOP Structure
 
@@ -52,118 +50,215 @@ The architecture emphasizes:
 
 `DashboardPanel` defines common behavior:
 
-- `panelTitle`
-- `isVisible`
-- `updatePanel()`
-- `show()`
-- `hide()`
+- `panelTitle`  
+- `isVisible`  
+- `updatePanel()`  
+- `show()`  
+- `hide()`  
+
+---
 
 ### Derived Panels
 
-| Panel              | Responsibility                                  |
-|--------------------|--------------------------------------------------|
-| `ControlPanel`     | Robot movement and emergency stop               |
-| `SpatialVisualizer`| LiDAR and IMU rendering                        |
-| `HealthMonitor`    | Battery, encoder, and sensor health monitoring  |
+- **ControlPanel**
+  - Handles robot movement  
+  - Emergency stop  
+
+- **SpatialVisualizer**
+  - Renders LiDAR and IMU data  
+
+- **HealthMonitor**
+  - Tracks battery and encoder health  
 
 ---
 
 ## Design Patterns
 
-### Factory Pattern — Sensor System
+### Factory Pattern (Sensor System)
 
-Creates sensor objects (`IMU`, `LiDAR`, `Encoder`) via a common interface.
+Used to create sensor objects:
 
-- Open/Closed Principle
-- Liskov Substitution Principle
-- Dependency Inversion Principle
-- Extensible sensor architecture
+- IMU  
+- LiDAR  
+- Encoder  
 
-### Singleton Pattern — CommBridge
+Benefits:
 
-Manages WebSocket communication.
+- Open/Closed Principle (easy extensibility)  
+- Liskov Substitution Principle (consistent behavior)  
+- Dependency Inversion (decoupled creation logic)  
 
-- Single active connection
-- Centralized message parsing
-- Consistent communication state
+---
+
+### Singleton Pattern (CommBridge)
+
+Used for WebSocket communication:
+
+- Ensures a single active connection  
+- Centralizes message handling and parsing  
+- Prevents inconsistent communication states  
 
 ---
 
 ## Core Components
 
-### `RobotState`
+### RobotState
 
 Single source of truth for:
 
-- Motor data
-- Sensor flags
-- Robot status
+- Motor data  
+- Sensor flags  
 
-### `CommBridge`
+---
+
+### CommBridge
 
 Handles:
 
-- WebSocket connection
-- Incoming telemetry parsing
-- Outgoing command transmission
+- WebSocket connection  
+- Incoming telemetry parsing  
+- Outgoing command transmission  
+
+---
 
 ### Panels
 
-All UI panels subscribe to the global state and update reactively.
+- Subscribe to global state  
+- Reactively update UI  
 
 ---
 
 ## UI Layout
 
-| Section       | Description                                              |
-|---------------|----------------------------------------------------------|
-| Top Bar       | Connection status, emergency stop, robot state           |
-| Left Panel    | Control inputs (arm/disarm, speed, movement)             |
-| Center Panel  | LiDAR and spatial visualization                          |
-| Right Panel   | Health monitoring and alerts                             |
-| Bottom Panel  | Telemetry graphs, logs, data export                      |
+- **Top Bar**
+  - Connection status  
+  - Emergency stop  
+  - Robot state  
+
+- **Left Panel**
+  - Control inputs  
+  - Arm/Disarm  
+  - Speed & movement  
+
+- **Center Panel**
+  - LiDAR + spatial visualization  
+
+- **Right Panel**
+  - Health monitoring  
+  - Alerts  
+
+- **Bottom Panel**
+  - Telemetry graphs  
+  - Logs  
+  - Export  
 
 ---
 
 ## Functional Behavior
 
-- Real-time updates via WebSocket
-- Emergency stop has highest priority
-- Controls disabled when disconnected
-- Alerts for low battery and sensor failures
-- Optimized rendering for smooth UI performance
+- Real-time updates via WebSocket  
+- Emergency stop has highest priority  
+- Controls disabled when disconnected  
+- Alerts for:
+  - Low battery  
+  - Sensor failures  
+- Optimized rendering for smooth UI updates  
 
 ---
 
 ## Project Structure
 
 
-/src
-├── app/
-├── components/
-├── panels/
-├── core/
-├── store/
-├── hooks/
-└── lib/
-
+frontend/
+├── dist/
+│   ├── assets/
+│   │   ├── geist-cyrillic-wght-normal-*.woff2
+│   │   ├── geist-latin-ext-wght-normal-*.woff2
+│   │   ├── geist-latin-wght-normal-*.woff2
+│   │   ├── index-*.css
+│   │   └── index-*.js
+│   ├── favicon.svg
+│   ├── icons.svg
+│   └── index.html
+│
+├── node_modules/
+│
+├── public/
+│
+├── src/
+│   ├── app/
+│   │   └── DashboardPage.tsx
+│   │
+│   ├── components/
+│   │   ├── panels/
+│   │   │   ├── ControlPanelView.tsx
+│   │   │   ├── HealthMonitorView.tsx
+│   │   │   ├── SpatialVisualizerView.tsx
+│   │   │   └── TelemetryPanel.tsx
+│   │   │
+│   │   └── ui/
+│   │       ├── alert.tsx
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── scroll-area.tsx
+│   │       ├── separator.tsx
+│   │       ├── slider.tsx
+│   │       ├── switch.tsx
+│   │       ├── tabs.tsx
+│   │       └── TopBar.tsx
+│   │
+│   ├── core/
+│   │   ├── CommBridge.ts
+│   │   ├── ControlPanel.ts
+│   │   ├── DashboardPanel.ts
+│   │   ├── GCsyncUI.ts
+│   │   ├── HealthMonitor.ts
+│   │   ├── index.ts
+│   │   ├── RobotState.ts
+│   │   └── SpatialVisualizer.ts
+│   │
+│   ├── hooks/
+│   │   └── useWebSocket.ts
+│   │
+│   ├── lib/
+│   │   └── utils.ts
+│   │
+│   ├── store/
+│   │   └── useRobotStore.ts
+│   │
+│   ├── App.tsx
+│   ├── index.css
+│   └── main.tsx
+│
+├── components.json
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── vite.config.ts
+├── .gitignore
+└── README.md
 
 
 ---
 
 ## SDLC Approach
 
-1. Requirement analysis using use case diagrams
-2. System design using ER and class diagrams
-3. Modular implementation
-4. Component and state validation testing
+- Requirement analysis using use case diagrams  
+- System design using ER and class diagrams  
+- Implementation with modular architecture  
+- Testing via component and state validation  
 
 ---
 
 ## Future Enhancements
 
-- Autonomous navigation support
-- AI-based anomaly detection
-- Cloud-based telemetry storage
-- Camera integration
-
+- Autonomous navigation support  
+- AI-based anomaly detection  
+- Cloud-based telemetry storage  
+- Camera integration  
+```
