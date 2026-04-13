@@ -171,65 +171,64 @@ Handles:
 
 frontend/
 ├── dist/
-│   ├── assets/
-│   │   ├── geist-cyrillic-wght-normal-*.woff2
-│   │   ├── geist-latin-ext-wght-normal-*.woff2
-│   │   ├── geist-latin-wght-normal-*.woff2
-│   │   ├── index-*.css
-│   │   └── index-*.js
-│   ├── favicon.svg
-│   ├── icons.svg
-│   └── index.html
+│ ├── assets/
+│ │ ├── geist-cyrillic-wght-normal-.woff2
+│ │ ├── geist-latin-ext-wght-normal-.woff2
+│ │ ├── geist-latin-wght-normal-.woff2
+│ │ ├── index-.css
+│ │ └── index-*.js
+│ ├── favicon.svg
+│ ├── icons.svg
+│ └── index.html
 │
 ├── node_modules/
-│
 ├── public/
 │
 ├── src/
-│   ├── app/
-│   │   └── DashboardPage.tsx
-│   │
-│   ├── components/
-│   │   ├── panels/
-│   │   │   ├── ControlPanelView.tsx
-│   │   │   ├── HealthMonitorView.tsx
-│   │   │   ├── SpatialVisualizerView.tsx
-│   │   │   └── TelemetryPanel.tsx
-│   │   │
-│   │   └── ui/
-│   │       ├── alert.tsx
-│   │       ├── badge.tsx
-│   │       ├── button.tsx
-│   │       ├── card.tsx
-│   │       ├── scroll-area.tsx
-│   │       ├── separator.tsx
-│   │       ├── slider.tsx
-│   │       ├── switch.tsx
-│   │       ├── tabs.tsx
-│   │       └── TopBar.tsx
-│   │
-│   ├── core/
-│   │   ├── CommBridge.ts
-│   │   ├── ControlPanel.ts
-│   │   ├── DashboardPanel.ts
-│   │   ├── GCsyncUI.ts
-│   │   ├── HealthMonitor.ts
-│   │   ├── index.ts
-│   │   ├── RobotState.ts
-│   │   └── SpatialVisualizer.ts
-│   │
-│   ├── hooks/
-│   │   └── useWebSocket.ts
-│   │
-│   ├── lib/
-│   │   └── utils.ts
-│   │
-│   ├── store/
-│   │   └── useRobotStore.ts
-│   │
-│   ├── App.tsx
-│   ├── index.css
-│   └── main.tsx
+│ ├── app/
+│ │ └── DashboardPage.tsx
+│ │
+│ ├── components/
+│ │ ├── panels/
+│ │ │ ├── ControlPanelView.tsx
+│ │ │ ├── HealthMonitorView.tsx
+│ │ │ ├── SpatialVisualizerView.tsx
+│ │ │ └── TelemetryPanel.tsx
+│ │ │
+│ │ └── ui/
+│ │ ├── alert.tsx
+│ │ ├── badge.tsx
+│ │ ├── button.tsx
+│ │ ├── card.tsx
+│ │ ├── scroll-area.tsx
+│ │ ├── separator.tsx
+│ │ ├── slider.tsx
+│ │ ├── switch.tsx
+│ │ ├── tabs.tsx
+│ │ └── TopBar.tsx
+│ │
+│ ├── core/
+│ │ ├── CommBridge.ts
+│ │ ├── ControlPanel.ts
+│ │ ├── DashboardPanel.ts
+│ │ ├── GCsyncUI.ts
+│ │ ├── HealthMonitor.ts
+│ │ ├── index.ts
+│ │ ├── RobotState.ts
+│ │ └── SpatialVisualizer.ts
+│ │
+│ ├── hooks/
+│ │ └── useWebSocket.ts
+│ │
+│ ├── lib/
+│ │ └── utils.ts
+│ │
+│ ├── store/
+│ │ └── useRobotStore.ts
+│ │
+│ ├── App.tsx
+│ ├── index.css
+│ └── main.tsx
 │
 ├── components.json
 ├── eslint.config.js
@@ -242,7 +241,6 @@ frontend/
 ├── vite.config.ts
 ├── .gitignore
 └── README.md
-
 
 ---
 
