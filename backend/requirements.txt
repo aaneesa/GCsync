@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-socketio
+pydantic
+langchain
+langchain-openai
+langchain-anthropic
+python-dotenv
+# Note: rclpy is usually provided by the ROS 2 environment and not via pip
