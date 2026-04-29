@@ -1,26 +1,40 @@
 export class EncoderStrategy {
-  private lastTime: number = 0;
-  private lastTicks: number = 0;
-  private readonly TICK_TO_METER = 0.01; // example conversion factor
-
   process(data: any) {
-    const currentTicks = data.data || 0; // assuming Int32 or similar
-    const currentTime = Date.now();
-    
-    let speed = 0;
-    if (this.lastTime > 0 && currentTime > this.lastTime) {
-      const dt = (currentTime - this.lastTime) / 1000.0;
-      const dTicks = currentTicks - this.lastTicks;
-      speed = (dTicks * this.TICK_TO_METER) / dt;
-    }
+    const position = data.pose?.pose?.position || { x: 0, y: 0, z: 0 };
+    const orientation = data.pose?.pose?.orientation || { x: 0, y: 0, z: 0, w: 1 };
+    const linearVelocity = data.twist?.twist?.linear || { x: 0, y: 0, z: 0 };
+    const angularVelocity = data.twist?.twist?.angular || { x: 0, y: 0, z: 0 };
 
-    this.lastTime = currentTime;
-    this.lastTicks = currentTicks;
+    const speed = Math.sqrt(
+      linearVelocity.x * linearVelocity.x +
+      linearVelocity.y * linearVelocity.y +
+      linearVelocity.z * linearVelocity.z
+    );
 
     return {
-      ticks: currentTicks,
-      speed: speed,
-      timestamp: currentTime
+      position: {
+        x: position.x,
+        y: position.y,
+        z: position.z,
+      },
+      orientation: {
+        x: orientation.x,
+        y: orientation.y,
+        z: orientation.z,
+        w: orientation.w,
+      },
+      linearVelocity: {
+        x: linearVelocity.x,
+        y: linearVelocity.y,
+        z: linearVelocity.z,
+      },
+      angularVelocity: {
+        x: angularVelocity.x,
+        y: angularVelocity.y,
+        z: angularVelocity.z,
+      },
+      speed,
+      timestamp: Date.now(),
     };
   }
 }

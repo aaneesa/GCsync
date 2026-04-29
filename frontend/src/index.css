@@ -9,137 +9,114 @@
     --font-heading: var(--font-sans);
     --font-sans: 'Geist Variable', sans-serif;
     
-    /* Neon Colors */
-    --color-neon-cyan: #00f2ff;
-    --color-neon-purple: #bc13fe;
-    --color-neon-rose: #ff0055;
-    --color-neon-emerald: #00ff9f;
+    /* Mission Control Palette */
+    --color-slate-950: #020617;
+    --color-slate-900: #0f172a;
+    --color-slate-800: #1e293b;
+    --color-slate-700: #334155;
+    --color-indigo-500: #6366f1;
+    --color-emerald-500: #10b981;
+    --color-rose-500: #f43f5e;
+    
+    /* Semantic Colors */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-border: var(--border);
+    --color-primary: var(--primary);
+    --color-secondary: var(--secondary);
+    --color-muted: var(--muted-foreground);
+    --radius-xl: 0.75rem;
 }
 
 :root {
-    --background: #0a0c10;
-    --foreground: #e2e8f0;
-    --panel-bg: rgba(15, 17, 22, 0.7);
-    --divider: rgba(0, 242, 255, 0.15);
-    --radius: 0px; /* Zero radius for seamless fusion */
+    --background: #020617;
+    --foreground: #f8fafc;
+    --card: #0f172a;
+    --card-foreground: #f8fafc;
+    --popover: #0f172a;
+    --popover-foreground: #f8fafc;
+    --primary: #6366f1;
+    --primary-foreground: #ffffff;
+    --secondary: #1e293b;
+    --secondary-foreground: #f8fafc;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --accent: #1e293b;
+    --accent-foreground: #f8fafc;
+    --destructive: #ef4444;
+    --destructive-foreground: #f8fafc;
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #6366f1;
+    --radius: 0.75rem;
 }
 
-/* ── Unified HUD Framework ────────────────────────── */
+/* ── Professional Bento Framework ───────────────────── */
 
 body {
-    background-color: #0a0c10;
+    background-color: var(--background);
     background-image: 
-        radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
-    background-size: 32px 32px;
+        radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.02) 1px, transparent 0);
+    background-size: 40px 40px;
     position: relative;
+    color: var(--foreground);
+    font-family: var(--font-sans);
 }
 
-/* Fused HUD Container */
-.hud-container {
-    border: 1px solid rgba(0, 242, 255, 0.3);
-    background: rgba(15, 17, 22, 0.4);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 255, 0.05);
-    position: relative;
-}
-
-/* Integrated Panel Dividers */
-.fused-panel {
-    border: 1px solid var(--divider);
-    background: var(--panel-bg);
-    position: relative;
-    transition: background 0.3s ease;
-}
-
-.fused-panel:hover {
-    background: rgba(0, 242, 255, 0.02);
-}
-
-/* Decorative Corner Accents (The 'Catchy' Tech Look) */
-.hud-corner {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #00f2ff;
-    z-index: 20;
-    pointer-events: none;
-}
-
-.hud-corner-tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
-.hud-corner-tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
-.hud-corner-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
-.hud-corner-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
-
-/* ── Technical Elements ────────────────────────────── */
-
-.panel-header-unified {
-    background: linear-gradient(90deg, rgba(0, 242, 255, 0.1) 0%, transparent 100%);
-    border-bottom: 1px solid var(--divider);
-    font-family: 'Geist Mono', monospace;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.15em;
-    color: #00f2ff;
-    text-transform: uppercase;
-}
-
-.text-neon-cyan {
-    color: #00f2ff;
-    text-shadow: 0 0 8px rgba(0, 242, 255, 0.6);
-}
-
-/* ── Animations ────────────────────────────────────── */
-
-@keyframes pulse-energy {
-    0%, 100% { border-color: rgba(0, 242, 255, 0.15); }
-    50% { border-color: rgba(0, 242, 255, 0.4); }
-}
-
-.animate-pulse-energy {
-    animation: pulse-energy 3s ease-in-out infinite;
-}
-
-/* ── Scrollbar (Integrated) ────────────────────────── */
-
-::-webkit-scrollbar {
-    width: 2px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #00f2ff;
-}
-
-@layer base {
-    * {
-        @apply border-none outline-none;
-    }
-    body {
-        @apply bg-[#0a0c10] text-slate-400 antialiased font-sans overflow-hidden;
-    }
-}
-── */
-
-.border-glow-cyan {
-    border-color: rgba(34, 211, 238, 0.2);
-}
-
-.border-glow-emerald {
-    border-color: rgba(16, 185, 129, 0.2);
-}
-
-.transition-smooth {
+.bento-panel {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Base styles ───────────────────────────────────── */
+.bento-panel:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    background: rgba(15, 23, 42, 0.9);
+}
+
+/* ── Technical Elements ────────────────────────────── */
+
+.panel-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ── Custom Scrollbar ──────────────────────────────── */
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--slate-700);
+}
 
 @layer base {
     * {
-        @apply border-border outline-ring/50;
+        @apply border-slate-800 outline-none;
     }
     body {
-        @apply bg-background text-foreground;
-    }
-    html {
-        @apply font-sans;
+        @apply antialiased overflow-hidden;
     }
 }

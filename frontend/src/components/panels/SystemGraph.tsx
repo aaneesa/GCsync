@@ -1,43 +1,72 @@
-import React, { useCallback } from 'react';
-import { ReactFlow, Background, Controls, type Edge, type Node } from '@xyflow/react';
+import React from 'react';
+import { ReactFlow, Background, type Edge, type Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useStore } from '../../store/useStore.ts';
+import { motion } from 'framer-motion';
+
+const nodeStyle = { 
+  background: '#020617', 
+  color: '#94a3b8', 
+  border: '1px solid #1e293b', 
+  borderRadius: '8px', 
+  padding: '8px 12px', 
+  fontSize: '10px', 
+  fontWeight: '600',
+  width: 100,
+  textAlign: 'center' as const
+};
+
+const activeNodeStyle = { 
+  ...nodeStyle,
+  background: '#0f172a', 
+  color: '#f8fafc', 
+  border: '1px solid #6366f1', 
+  boxShadow: '0 0 15px rgba(99,102,241,0.1)'
+};
 
 const initialNodes: Node[] = [
-  { id: '1', position: { x: 50, y: 150 }, data: { label: 'SENS_HUB' }, style: { background: '#0f1115', color: '#00f2ff', border: '1px solid #00f2ff44', borderRadius: '2px', padding: '10px', fontSize: '10px', fontFamily: 'monospace' } },
-  { id: '2', position: { x: 200, y: 150 }, data: { label: 'ESP32_BRDG' }, style: { background: '#0f1115', color: '#00f2ff', border: '1px solid #00f2ff44', borderRadius: '2px', padding: '10px', fontSize: '10px', fontFamily: 'monospace' } },
-  { id: '3', position: { x: 350, y: 150 }, data: { label: 'ROS_CORE' }, style: { background: '#0f1115', color: '#00f2ff', border: '1px solid #00f2ff44', borderRadius: '2px', padding: '10px', fontSize: '10px', fontFamily: 'monospace' } },
-  { id: '4', position: { x: 550, y: 150 }, data: { label: 'GCSYNC_DASH' }, style: { background: '#00f2ff22', color: '#00f2ff', border: '1px solid #00f2ff', borderRadius: '2px', padding: '10px', fontSize: '10px', fontFamily: 'monospace', fontWeight: 'bold' } },
+  { id: '1', position: { x: 50, y: 100 }, data: { label: 'Sensor Hub' }, style: nodeStyle },
+  { id: '2', position: { x: 200, y: 100 }, data: { label: 'ESP32 Bridge' }, style: nodeStyle },
+  { id: '3', position: { x: 350, y: 100 }, data: { label: 'ROS Core' }, style: nodeStyle },
+  { id: '4', position: { x: 500, y: 100 }, data: { label: 'Mission Dash' }, style: activeNodeStyle },
 ];
 
 export const SystemGraph: React.FC = () => {
   const isConnected = useStore((state) => state.isConnected);
 
   const initialEdges: Edge[] = [
-    { id: 'e1-2', source: '1', target: '2', animated: isConnected, style: { stroke: isConnected ? '#00f2ff' : '#334155', strokeWidth: 2 } },
-    { id: 'e2-3', source: '2', target: '3', animated: isConnected, style: { stroke: isConnected ? '#00f2ff' : '#334155', strokeWidth: 2 } },
-    { id: 'e3-4', source: '3', target: '4', animated: isConnected, style: { stroke: isConnected ? '#00f2ff' : '#334155', strokeWidth: 2 } },
+    { id: 'e1-2', source: '1', target: '2', animated: isConnected, style: { stroke: isConnected ? '#6366f1' : '#334155', strokeWidth: 1.5 } },
+    { id: 'e2-3', source: '2', target: '3', animated: isConnected, style: { stroke: isConnected ? '#6366f1' : '#334155', strokeWidth: 1.5 } },
+    { id: 'e3-4', source: '3', target: '4', animated: isConnected, style: { stroke: isConnected ? '#6366f1' : '#334155', strokeWidth: 1.5 } },
   ];
 
   return (
-    <div className="flex flex-col h-full fused-panel overflow-hidden">
-      <div className="px-4 py-2 panel-header-unified flex justify-between items-center">
-        <span>SYSTEM_PIPELINE_MAP</span>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col h-full overflow-hidden"
+    >
+      <div className="panel-header">
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-neon-emerald shadow-[0_0_8px_#00ff9f]' : 'bg-neon-rose shadow-[0_0_8px_#ff0055]'}`} />
-          <span className="text-[9px] font-mono opacity-60 tracking-widest">{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
+          <div className="w-2 h-2 rounded-full bg-slate-500" />
+          <span className="font-semibold text-slate-300">System Map</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{isConnected ? 'Link Active' : 'Link Offline'}</span>
         </div>
       </div>
-      <div className="flex-1 w-full relative bg-black">
+      <div className="flex-1 relative bg-slate-950/50">
         <ReactFlow 
           nodes={initialNodes} 
           edges={initialEdges}
           fitView
           proOptions={{ hideAttribution: true }}
+          suppressHydrationWarning
         >
-          <Background color="#00f2ff" gap={20} size={1} variant={"dots" as any} className="opacity-10" />
+          <Background color="#1e293b" gap={20} size={1} variant={"dots" as any} />
         </ReactFlow>
       </div>
-    </div>
+    </motion.div>
   );
 };

@@ -1,9 +1,10 @@
 export class LidarStrategy {
   process(data: any) {
-    if (!data.ranges) return [];
+    if (!data.ranges) return { points: [], meta: null };
     
     const points: [number, number, number][] = [];
     const angleMin = data.angle_min;
+    const angleMax = data.angle_max;
     const angleIncrement = data.angle_increment;
     const rangeMin = data.range_min;
     const rangeMax = data.range_max;
@@ -17,6 +18,17 @@ export class LidarStrategy {
         points.push([x, y, 0]);
       }
     }
-    return points;
+
+    return {
+      points,
+      meta: {
+        pointCount: points.length,
+        angleMin,
+        angleMax,
+        angleIncrement,
+        rangeMin,
+        rangeMax,
+      }
+    };
   }
 }

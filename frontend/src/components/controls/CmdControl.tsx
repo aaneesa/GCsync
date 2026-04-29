@@ -1,117 +1,169 @@
 import { cmdVelService } from '../../services/CmdVelService';
 import { useStore } from '../../store/useStore.ts';
-import React, { useRef, useState } from 'react'; 
+import React, { useState, useCallback } from 'react'; 
+import { motion } from 'framer-motion';
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Octagon, ShieldAlert } from 'lucide-react';
+
+const STEP = 0.1;
+const MIN_VAL = -1.0;
+const MAX_VAL = 1.0;
+
+/** Clamp a value between min and max, round to 1 decimal */
+const clamp = (v: number) => Math.round(Math.max(MIN_VAL, Math.min(MAX_VAL, v)) * 10) / 10;
 
 export const CmdControl: React.FC = () => {
   const isConnected = useStore((state) => state.isConnected);
-  const padRef = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
+  const [linearX, setLinearX] = useState(0);
+  const [angularZ, setAngularZ] = useState(0);
 
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const sendCmd = useCallback((lx: number, az: number) => {
+    setLinearX(lx);
+    setAngularZ(az);
+    cmdVelService.send(lx, az);
+  }, []);
+
+  const handleUp = () => {
     if (!isConnected) return;
-    setIsDragging(true);
-    updatePos(e);
+    const next = clamp(linearX + STEP);
+    sendCmd(next, angularZ);
   };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (isDragging) updatePos(e);
+  const handleDown = () => {
+    if (!isConnected) return;
+    const next = clamp(linearX - STEP);
+    sendCmd(next, angularZ);
   };
 
-  const handlePointerUp = () => {
-    setIsDragging(false);
-    setPos({ x: 0, y: 0 });
-    cmdVelService.send(0, 0); // Stop
+  const handleLeft = () => {
+    if (!isConnected) return;
+    const next = clamp(angularZ + STEP);
+    sendCmd(linearX, next);
   };
 
-  const updatePos = (e: React.PointerEvent) => {
-    if (!padRef.current) return;
-    const rect = padRef.current.getBoundingClientRect();
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    // Calculate raw position relative to center
-    let x = e.clientX - rect.left - centerX;
-    let y = e.clientY - rect.top - centerY;
-    
-    // Constrain to circle
-    const maxRadius = rect.width / 2;
-    const distance = Math.sqrt(x*x + y*y);
-    if (distance > maxRadius) {
-      x = (x / distance) * maxRadius;
-      y = (y / distance) * maxRadius;
-    }
-
-    setPos({ x, y });
-
-    // Normalize to [-1, 1]
-    const normX = x / maxRadius;
-    const normY = y / maxRadius;
-
-    // Linear velocity is -y (forward is negative y on screen), Angular is -x
-    const maxLinear = 1.0;
-    const maxAngular = 1.0;
-    
-    cmdVelService.send(-normY * maxLinear, -normX * maxAngular);
+  const handleRight = () => {
+    if (!isConnected) return;
+    const next = clamp(angularZ - STEP);
+    sendCmd(linearX, next);
   };
+
+  const handleStop = () => {
+    sendCmd(0, 0);
+  };
+
+  const btnBase = `flex items-center justify-center rounded-lg border transition-all duration-150 active:scale-95 select-none touch-none`;
+  const dirBtn = `${btnBase} w-14 h-14 border-slate-700 bg-slate-950 hover:bg-indigo-500/15 hover:border-indigo-500/50 text-slate-300 hover:text-indigo-400 shadow-lg`;
+  const disabledBtn = `${btnBase} w-14 h-14 border-slate-800 bg-slate-950 text-slate-700 cursor-not-allowed opacity-40`;
 
   return (
-    <div className="flex flex-col h-full fused-panel overflow-hidden">
-      <div className="px-4 py-2 panel-header-unified flex items-center justify-between">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col h-full overflow-hidden"
+    >
+      <div className="panel-header">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-neon-rose animate-pulse-energy" />
-          <span>CMD_VEL_CTRL_PAD</span>
+          <div className="w-2 h-2 rounded-full bg-indigo-500" />
+          <span className="font-semibold text-slate-300">Command Matrix</span>
         </div>
-        <span className="opacity-40 font-mono text-[9px]">CTRL_DRIVE_01</span>
+        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">D-Pad_Control</span>
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
-        <div 
-          ref={padRef}
-          className={`relative w-44 h-44 rounded-full border border-white/5 transition-all duration-500 touch-none overflow-hidden
-            ${isConnected ? 'bg-slate-900/40 opacity-100 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]' : 'bg-slate-900/20 opacity-30 cursor-not-allowed'}`}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
+
+      <div className="flex-1 flex flex-col p-6 gap-5 bg-slate-900/30">
+        {/* D-Pad + Readouts */}
+        <div className="flex-1 flex items-center justify-around">
+          {/* D-Pad Grid */}
+          <div className="grid grid-cols-3 grid-rows-3 gap-2 place-items-center">
+            {/* Row 1: empty - UP - empty */}
+            <div />
+            <button
+              onClick={handleUp}
+              className={isConnected ? dirBtn : disabledBtn}
+              title="Increase Linear X (+0.1)"
+            >
+              <ChevronUp size={24} strokeWidth={2.5} />
+            </button>
+            <div />
+
+            {/* Row 2: LEFT - STOP - RIGHT */}
+            <button
+              onClick={handleLeft}
+              className={isConnected ? dirBtn : disabledBtn}
+              title="Increase Angular Z (+0.1)"
+            >
+              <ChevronLeft size={24} strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={handleStop}
+              className={`${btnBase} w-14 h-14 border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/25 text-rose-500 hover:text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.15)]`}
+              title="Emergency Stop — Reset to 0"
+            >
+              <Octagon size={20} strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={handleRight}
+              className={isConnected ? dirBtn : disabledBtn}
+              title="Decrease Angular Z (−0.1)"
+            >
+              <ChevronRight size={24} strokeWidth={2.5} />
+            </button>
+
+            {/* Row 3: empty - DOWN - empty */}
+            <div />
+            <button
+              onClick={handleDown}
+              className={isConnected ? dirBtn : disabledBtn}
+              title="Decrease Linear X (−0.1)"
+            >
+              <ChevronDown size={24} strokeWidth={2.5} />
+            </button>
+            <div />
+          </div>
+
+          {/* Readout Cards */}
+          <div className="flex flex-col gap-4">
+            <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 w-36">
+              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Linear_X</div>
+              <div className="flex items-baseline gap-1.5">
+                <span className={`text-3xl font-bold tabular-nums ${linearX > 0 ? 'text-emerald-400' : linearX < 0 ? 'text-rose-400' : 'text-white'}`}>
+                  {linearX >= 0 ? '+' : ''}{linearX.toFixed(1)}
+                </span>
+                <span className="text-[9px] text-slate-600 font-medium">m/s</span>
+              </div>
+              {/* Mini bar */}
+              <div className="mt-2 h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-150 ${linearX >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                  style={{ width: `${Math.abs(linearX) * 100}%`, marginLeft: linearX < 0 ? 'auto' : undefined }}
+                />
+              </div>
+            </div>
+            <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 w-36">
+              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Angular_Z</div>
+              <div className="flex items-baseline gap-1.5">
+                <span className={`text-3xl font-bold tabular-nums ${angularZ > 0 ? 'text-sky-400' : angularZ < 0 ? 'text-amber-400' : 'text-white'}`}>
+                  {angularZ >= 0 ? '+' : ''}{angularZ.toFixed(1)}
+                </span>
+                <span className="text-[9px] text-slate-600 font-medium">rad/s</span>
+              </div>
+              {/* Mini bar */}
+              <div className="mt-2 h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-150 ${angularZ >= 0 ? 'bg-sky-500' : 'bg-amber-500'}`}
+                  style={{ width: `${Math.abs(angularZ) * 100}%`, marginLeft: angularZ < 0 ? 'auto' : undefined }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom: Kill Switch */}
+        <button 
+          onClick={handleStop}
+          className="flex items-center justify-center gap-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/40 text-rose-500 px-4 py-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(244,63,94,0.1)] hover:shadow-[0_0_20px_rgba(244,63,94,0.2)] active:scale-[0.98]"
         >
-          {/* HUD Grid Overlay */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-1/2 left-0 w-full h-px bg-white -translate-y-1/2" />
-            <div className="absolute left-1/2 top-0 h-full w-px bg-white -translate-x-1/2" />
-            <div className="absolute inset-4 border border-white rounded-full" />
-            <div className="absolute inset-12 border border-white rounded-full" />
-          </div>
-
-          {/* Joystick handle */}
-          <div 
-            className="absolute top-1/2 left-1/2 w-14 h-14 bg-neon-rose rounded-full shadow-[0_0_25px_rgba(255,0,85,0.6)] border-2 border-white/30 cursor-grab active:cursor-grabbing transition-transform duration-75 z-10"
-            style={{ 
-              transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px))`,
-            }}
-          />
-        </div>
-
-        <div className="mt-6 grid grid-cols-2 gap-10">
-          <div className="text-center">
-            <div className="text-[8px] text-slate-500 font-mono uppercase tracking-[0.2em] mb-1">LINEAR_X</div>
-            <div className="text-2xl font-black text-white tracking-tighter font-mono">
-              {(pos.y / -88).toFixed(2)}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-[8px] text-slate-500 font-mono uppercase tracking-[0.2em] mb-1">ANGULAR_Z</div>
-            <div className="text-2xl font-black text-white tracking-tighter font-mono">
-              {(pos.x / -88).toFixed(2)}
-            </div>
-          </div>
-        </div>
-
-        {!isConnected && (
-          <div className="mt-4 text-[9px] text-neon-rose font-mono font-bold border border-neon-rose/30 px-3 py-1 rounded-sm animate-pulse-energy">
-            SYSTEM_DISARMED: NO_LINK
-          </div>
-        )}
+          <ShieldAlert size={16} className="animate-pulse" /> Safety_Kill_Stop
+        </button>
       </div>
-    </div>
+    </motion.div>
   );
 };

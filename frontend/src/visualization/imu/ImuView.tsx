@@ -1,8 +1,23 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useStore } from '../../store/useStore.ts';
 import * as THREE from 'three';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
+
+/** Helper: format a number to fixed decimals with sign */
+const fmt = (v: number | undefined, decimals = 4) => {
+  if (v === undefined || v === null) return '—';
+  return v >= 0 ? `+${v.toFixed(decimals)}` : v.toFixed(decimals);
+};
+
+/** Single data readout row */
+const DataRow: React.FC<{ label: string; value: string; color: string }> = ({ label, value, color }) => (
+  <div className="flex items-center justify-between gap-3">
+    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider shrink-0">{label}</span>
+    <span className={`text-[11px] font-mono font-bold tabular-nums ${color}`}>{value}</span>
+  </div>
+);
 
 const OrientationCube = () => {
   const imuData = useStore((state) => state.imuData);
@@ -18,7 +33,7 @@ const OrientationCube = () => {
   return (
     <mesh ref={meshRef}>
       <boxGeometry args={[2, 0.5, 3]} />
-      <meshStandardMaterial color="#8b5cf6" wireframe={false} />
+      <meshStandardMaterial color="#818cf8" wireframe={false} />
       <axesHelper args={[3]} />
     </mesh>
   );
@@ -26,53 +41,105 @@ const OrientationCube = () => {
 
 export const ImuView: React.FC = () => {
   const imuData = useStore((state) => state.imuData);
-  const [history, setHistory] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (imuData) {
-      setHistory(prev => {
-        const newHist = [...prev, {
-          time: Date.now() % 10000,
-          wx: imuData.angular_velocity.x,
-          wy: imuData.angular_velocity.y,
-          wz: imuData.angular_velocity.z
-        }];
-        return newHist.slice(-50); // Keep last 50 points
-      });
-    }
-  }, [imuData]);
+  const history = useStore((state) => state.imuHistory);
+  const dataRate = useStore((state) => state.dataRates.imu);
 
   return (
-    <div className="flex flex-col h-full fused-panel overflow-hidden">
-      <div className="px-4 py-2 panel-header-unified flex items-center justify-between">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col h-full overflow-hidden"
+    >
+      <div className="panel-header">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-neon-purple animate-pulse-energy" />
-          <span>IMU_ORIENTATION_PROC</span>
+          <div className="w-2 h-2 rounded-full bg-indigo-500" />
+          <span>IMU Sensor Data</span>
         </div>
-        <span className="opacity-40 font-mono text-[9px]">SENS_GYRO_02</span>
+        <div className="flex items-center gap-3">
+          <span className="opacity-60 font-mono text-[9px] text-indigo-400">{dataRate} Hz</span>
+          <span className="opacity-40 font-mono text-[9px]">AXIS_LOCK: ACTIVE</span>
+        </div>
       </div>
-      <div className="flex-1 flex p-4 gap-4">
-        <div className="w-1/2 bg-black border border-white/5 rounded-sm overflow-hidden relative">
-           <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
+
+      <div className="flex-1 flex p-2 gap-2 bg-slate-900/50 overflow-hidden">
+        {/* Left: 3D Orientation Cube */}
+        <div className="w-[35%] flex flex-col gap-2">
+          <div className="flex-1 bg-slate-950 border border-slate-800 rounded-lg overflow-hidden relative min-h-0">
+            <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
               <ambientLight intensity={0.5} />
-              <pointLight position={[10, 10, 10]} intensity={1} color="#bc13fe" />
+              <pointLight position={[10, 10, 10]} intensity={1} color="#6366f1" />
               <OrientationCube />
-           </Canvas>
+            </Canvas>
+            <div className="absolute bottom-1.5 left-1.5 text-[8px] font-mono text-indigo-400/60 uppercase">Orientation_3D</div>
+          </div>
         </div>
-        <div className="w-1/2 flex flex-col justify-center bg-black border border-white/5 rounded-sm p-2">
-          <ResponsiveContainer width="100%" height="100%">
+
+        {/* Center: Real-time numeric readouts */}
+        <div className="w-[30%] flex flex-col gap-1.5 min-h-0 overflow-y-auto">
+          {/* Orientation Quaternion */}
+          <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
+            <div className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+              <div className="w-1 h-1 rounded-full bg-indigo-500" />
+              Orientation
+            </div>
+            <div className="space-y-0.5">
+              <DataRow label="X" value={fmt(imuData?.orientation.x)} color="text-rose-400" />
+              <DataRow label="Y" value={fmt(imuData?.orientation.y)} color="text-emerald-400" />
+              <DataRow label="Z" value={fmt(imuData?.orientation.z)} color="text-sky-400" />
+              <DataRow label="W" value={fmt(imuData?.orientation.w)} color="text-amber-400" />
+            </div>
+          </div>
+
+          {/* Angular Velocity */}
+          <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
+            <div className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+              <div className="w-1 h-1 rounded-full bg-emerald-500" />
+              Angular Vel <span className="text-slate-600">rad/s</span>
+            </div>
+            <div className="space-y-0.5">
+              <DataRow label="ωx" value={fmt(imuData?.angular_velocity.x)} color="text-rose-400" />
+              <DataRow label="ωy" value={fmt(imuData?.angular_velocity.y)} color="text-emerald-400" />
+              <DataRow label="ωz" value={fmt(imuData?.angular_velocity.z)} color="text-sky-400" />
+            </div>
+          </div>
+
+          {/* Linear Acceleration */}
+          <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
+            <div className="text-[8px] font-bold text-rose-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+              <div className="w-1 h-1 rounded-full bg-rose-500" />
+              Accel <span className="text-slate-600">m/s²</span>
+            </div>
+            <div className="space-y-0.5">
+              <DataRow label="ax" value={fmt(imuData?.linear_acceleration.x)} color="text-rose-400" />
+              <DataRow label="ay" value={fmt(imuData?.linear_acceleration.y)} color="text-emerald-400" />
+              <DataRow label="az" value={fmt(imuData?.linear_acceleration.z)} color="text-sky-400" />
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Angular velocity chart */}
+        <div className="w-[35%] flex flex-col justify-center bg-slate-950 border border-slate-800 rounded-lg p-2 min-h-0">
+          <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 px-1">Gyro_Stream</div>
+          <ResponsiveContainer width="100%" height="90%" minWidth={0} minHeight={0}>
             <LineChart data={history}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
               <XAxis dataKey="time" hide />
-              <YAxis domain={[-5, 5]} stroke="#bc13fe" fontSize={8} />
-              <Tooltip contentStyle={{ backgroundColor: '#0f1115', border: '1px solid #bc13fe', fontSize: '10px' }} />
-              <Line type="monotone" dataKey="wx" stroke="#ff0055" dot={false} isAnimationActive={false} strokeWidth={2} />
-              <Line type="monotone" dataKey="wy" stroke="#00ff9f" dot={false} isAnimationActive={false} strokeWidth={2} />
-              <Line type="monotone" dataKey="wz" stroke="#00f2ff" dot={false} isAnimationActive={false} strokeWidth={2} />
+              <YAxis domain={[-5, 5]} hide />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#0f172a', 
+                  border: '1px solid #1e293b', 
+                  borderRadius: '8px',
+                  fontSize: '10px' 
+                }} 
+              />
+              <Line type="monotone" dataKey="wx" stroke="#6366f1" dot={false} isAnimationActive={false} strokeWidth={1.5} />
+              <Line type="monotone" dataKey="wy" stroke="#10b981" dot={false} isAnimationActive={false} strokeWidth={1.5} />
+              <Line type="monotone" dataKey="wz" stroke="#f43f5e" dot={false} isAnimationActive={false} strokeWidth={1.5} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

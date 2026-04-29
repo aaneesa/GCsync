@@ -1,0 +1,117 @@
+
+> ground-control@0.0.0 lint
+> eslint .
+
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/components/panels/SessionPanel.tsx
+  12:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  16:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/components/panels/SessionPanel.tsx:16:7
+  14 |       interval = setInterval(() => setDuration(prev => prev + 1), 1000);
+  15 |     } else {
+> 16 |       setDuration(0);
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |     }
+  18 |     return () => clearInterval(interval);
+  19 |   }, [isRecording]);  react-hooks/set-state-in-effect
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/components/panels/SystemGraph.tsx
+  38:76  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/core/factory/SensorFactory.ts
+  4:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/core/observer/EventBus.ts
+   1:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/core/strategies/EncoderStrategy.ts
+  2:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/core/strategies/ImuStrategy.ts
+  2:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/core/strategies/LidarStrategy.ts
+  2:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/core/websocket/RosConnection.ts
+  11:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/domain/BaseSensor.ts
+  1:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  8:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  8:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/domain/Sensors.ts
+   4:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/services/CmdVelService.ts
+   5:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/services/SensorService.ts
+  27:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  51:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/services/SessionManager.ts
+   8:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/store/useStore.ts
+  18:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/visualization/encoder/EncoderView.tsx
+   8:42  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+  12:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/visualization/encoder/EncoderView.tsx:12:7
+  10 |   useEffect(() => {
+  11 |     if (encoderData) {
+> 12 |       setHistory(prev => {
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |         const newHist = [...prev, {
+  14 |           time: Date.now() % 10000,
+  15 |           speed: encoderData.speed  react-hooks/set-state-in-effect
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/visualization/imu/ImuView.tsx
+  30:42  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  34:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/anweshaadhikari/Desktop/GCsync/frontend/src/visualization/imu/ImuView.tsx:34:7
+  32 |   useEffect(() => {
+  33 |     if (imuData) {
+> 34 |       setHistory(prev => {
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  35 |         const newHist = [...prev, {
+  36 |           time: Date.now() % 10000,
+  37 |           wx: imuData.angular_velocity.x,  react-hooks/set-state-in-effect
+
+✖ 33 problems (33 errors, 0 warnings)
+

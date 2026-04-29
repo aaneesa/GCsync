@@ -12,19 +12,43 @@ export class SensorService {
   private lidarStrategy = new LidarStrategy();
   private imuStrategy = new ImuStrategy();
   private encoderStrategy = new EncoderStrategy();
+  private subscribersReady = false;
+
+  // Data rate tracking
+  private imuCount = 0;
+  private lidarCount = 0;
+  private odomCount = 0;
 
   constructor() {
-    this.setupSubscribers();
     this.setupObservers();
+    this.setupDataRateTracker();
+
+    // Subscribe to ROS topics only after connection is confirmed ready
+    // This prevents the "Still in CONNECTING state" error
+    const connection = RosConnection.getInstance();
+    if (connection.isReady()) {
+      this.setupSubscribers();
+    }
+
+    eventBus.subscribe('ros:connection', (connected: boolean) => {
+      if (connected && !this.subscribersReady) {
+        // Small delay to ensure WebSocket is fully stable before subscribing
+        setTimeout(() => this.setupSubscribers(), 200);
+      }
+    });
   }
 
   /**
    * 1. ROS Topic → RosConnection → EventBus (Raw data)
    */
   private setupSubscribers() {
-    const connection = RosConnection.getInstance();
+    if (this.subscribersReady) return;
+    this.subscribersReady = true;
 
-    const lidarTopic = new (ROSLIB as any).Topic({
+    const connection = RosConnection.getInstance();
+    const RosLib = ROSLIB as any;
+
+    const lidarTopic = new RosLib.Topic({
       ros: connection.ros,
       name: '/scan',
       messageType: 'sensor_msgs/LaserScan'
@@ -38,9 +62,9 @@ export class SensorService {
       eventBus.publish('raw:lidar', message);
     });
 
-    const imuTopic = new (ROSLIB as any).Topic({
+    const imuTopic = new RosLib.Topic({
       ros: connection.ros,
-      name: '/imu/data',
+      name: '/imu/data_raw',
       messageType: 'sensor_msgs/Imu'
     });
 
@@ -48,15 +72,17 @@ export class SensorService {
       eventBus.publish('raw:imu', message);
     });
 
-    const encoderTopic = new (ROSLIB as any).Topic({
+    const encoderTopic = new RosLib.Topic({
       ros: connection.ros,
-      name: '/encoder/ticks',
-      messageType: 'std_msgs/Int32'
+      name: '/odom/unfiltered', 
+      messageType: 'nav_msgs/Odometry'
     });
 
     encoderTopic.subscribe((message: any) => {
       eventBus.publish('raw:encoder', message);
     });
+
+    console.log('SensorService: All topic subscriptions established');
   }
 
   /**
@@ -66,9 +92,13 @@ export class SensorService {
     // Lidar Observer
     eventBus.subscribe('raw:lidar', (raw) => {
       const sensor = SensorFactory.create('lidar', raw);
-      const points = sensor.process(this.lidarStrategy);
-      useStore.getState().setLidarData(points);
-      sessionManager.addData('lidar', points);
+      const result = sensor.process(this.lidarStrategy);
+      useStore.getState().setLidarData(result.points);
+      if (result.meta) {
+        useStore.getState().setLidarMeta(result.meta);
+      }
+      sessionManager.addData('lidar', result.points);
+      this.lidarCount++;
     });
 
     // IMU Observer
@@ -77,15 +107,31 @@ export class SensorService {
       const data = sensor.process(this.imuStrategy);
       useStore.getState().setImuData(data);
       sessionManager.addData('imu', data);
+      this.imuCount++;
     });
 
-    // Encoder Observer
+    // Encoder/Odometry Observer
     eventBus.subscribe('raw:encoder', (raw) => {
       const sensor = SensorFactory.create('encoder', raw);
       const data = sensor.process(this.encoderStrategy);
-      useStore.getState().setEncoderData(data);
+      useStore.getState().setOdomData(data);
       sessionManager.addData('encoder', data);
+      this.odomCount++;
     });
+  }
+
+  /**
+   * 3. Track data rates (messages per second) for header display
+   */
+  private setupDataRateTracker() {
+    setInterval(() => {
+      useStore.getState().setDataRate('imu', this.imuCount);
+      useStore.getState().setDataRate('lidar', this.lidarCount);
+      useStore.getState().setDataRate('odom', this.odomCount);
+      this.imuCount = 0;
+      this.lidarCount = 0;
+      this.odomCount = 0;
+    }, 1000);
   }
 }
 
