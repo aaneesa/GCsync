@@ -1,4 +1,3 @@
-import { cmdVelService } from '../../services/CmdVelService';
 import { useStore } from '../../store/useStore.ts';
 import React, { useState, useCallback } from 'react'; 
 import { motion } from 'framer-motion';
@@ -19,7 +18,7 @@ export const CmdControl: React.FC = () => {
   const sendCmd = useCallback((lx: number, az: number) => {
     setLinearX(lx);
     setAngularZ(az);
-    cmdVelService.send(lx, az);
+    // Command disabled temporarily
   }, []);
 
   const handleUp = () => {

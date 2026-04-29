@@ -5,7 +5,6 @@ import { ImuView } from '../visualization/imu/ImuView';
 import { EncoderView } from '../visualization/encoder/EncoderView';
 import { TelemetryGraph } from '../components/panels/TelemetryGraph';
 import { SystemGraph } from '../components/panels/SystemGraph';
-import { CmdControl } from '../components/controls/CmdControl';
 
 const Dashboard: React.FC = () => {
   return (
@@ -17,27 +16,23 @@ const Dashboard: React.FC = () => {
           <LidarView />
         </div>
 
-        {/* Control Matrix (Top Right) */}
-        <div className="col-span-4 row-span-3 bento-panel overflow-hidden">
-          <CmdControl />
-        </div>
-
-        {/* System Map (Bottom Right) */}
+        {/* System Map (Top Right) */}
         <div className="col-span-4 row-span-3 bento-panel overflow-hidden">
           <SystemGraph />
         </div>
 
-        {/* Telemetry Stack (Bottom Row) */}
+        {/* Telemetry Stack (Bottom Right) */}
+        <div className="col-span-4 row-span-3 bento-panel overflow-hidden">
+          <TelemetryGraph />
+        </div>
+
+        {/* Sensor Data (Bottom Row) */}
         <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
           <ImuView />
         </div>
         
         <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
           <EncoderView />
-        </div>
-
-        <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
-          <TelemetryGraph />
         </div>
 
       </div>
