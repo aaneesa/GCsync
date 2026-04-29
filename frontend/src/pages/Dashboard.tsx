@@ -4,7 +4,7 @@ import { LidarView } from '../visualization/lidar/LidarView';
 import { ImuView } from '../visualization/imu/ImuView';
 import { EncoderView } from '../visualization/encoder/EncoderView';
 import { TelemetryGraph } from '../components/panels/TelemetryGraph';
-import { SystemGraph } from '../components/panels/SystemGraph';
+import { MissionControl } from '../components/panels/MissionControl';
 
 const Dashboard: React.FC = () => {
   return (
@@ -26,9 +26,9 @@ const Dashboard: React.FC = () => {
           <EncoderView />
         </div>
 
-        {/* Secondary Panels - System Map (Bottom Left) */}
+        {/* Mission Configuration & Database Status */}
         <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
-          <SystemGraph />
+          <MissionControl />
         </div>
 
         {/* Secondary Panels - Telemetry (Bottom Center) */}

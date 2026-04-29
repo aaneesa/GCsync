@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { TelemetryService } from '../services/TelemetryService';
 
 interface Vec3 {
   x: number;
@@ -42,6 +43,15 @@ interface GroundControlState {
   isConnected: boolean;
   setIsConnected: (status: boolean) => void;
   
+  // Session Tracking
+  currentSessionId: string | null;
+  setCurrentSessionId: (id: string | null) => void;
+  robotId: string;
+  operatorName: string;
+  setMissionSettings: (robotId: string, operatorName: string) => void;
+  telemetryBuffer: any[];
+  flushTelemetry: () => Promise<void>;
+  
   // Lidar
   lidarPoints: [number, number, number][];
   lidarMeta: LidarMeta | null;
@@ -73,9 +83,31 @@ interface GroundControlState {
   setDataRate: (sensor: 'imu' | 'lidar' | 'odom', rate: number) => void;
 }
 
-export const useStore = create<GroundControlState>((set) => ({
+export const useStore = create<GroundControlState>((set, get) => ({
   isConnected: false,
   setIsConnected: (status) => set({ isConnected: status }),
+  
+  currentSessionId: null,
+  setCurrentSessionId: (id) => set({ currentSessionId: id }),
+  robotId: 'GCS_ROBOT_ALPHA',
+  operatorName: 'Mission_Admin',
+  setMissionSettings: (robotId, operatorName) => set({ robotId, operatorName }),
+  telemetryBuffer: [],
+
+  flushTelemetry: async () => {
+    const { currentSessionId, telemetryBuffer } = get();
+    if (!currentSessionId || telemetryBuffer.length === 0) {
+      if (!currentSessionId) console.warn('[STORE] No active session ID - skipping telemetry save');
+      return;
+    }
+
+    console.log(`[STORE] Flushing ${telemetryBuffer.length} items to MongoDB...`);
+    // Send to backend
+    await TelemetryService.logBatch(telemetryBuffer);
+    
+    // Clear buffer
+    set({ telemetryBuffer: [] });
+  },
 
   lidarPoints: [],
   lidarMeta: null,
@@ -99,7 +131,19 @@ export const useStore = create<GroundControlState>((set) => ({
       ay: data.linear_acceleration.y,
       az: data.linear_acceleration.z
     }].slice(-50);
-    return { imuData: data, imuHistory: newHistory, imuAccelHistory: newAccelHistory };
+
+    // Buffer for MongoDB (limit buffer size to prevent memory issues)
+    const newBuffer = state.currentSessionId ? [
+      ...state.telemetryBuffer, 
+      { sessionId: state.currentSessionId, type: 'imu', data, timestamp: new Date() }
+    ].slice(-500) : state.telemetryBuffer;
+
+    return { 
+      imuData: data, 
+      imuHistory: newHistory, 
+      imuAccelHistory: newAccelHistory,
+      telemetryBuffer: newBuffer
+    };
   }),
 
   odomData: null,
@@ -111,9 +155,17 @@ export const useStore = create<GroundControlState>((set) => ({
       x: data.position.x,
       y: data.position.y,
     }].slice(-60);
+
+    // Buffer for MongoDB
+    const newBuffer = state.currentSessionId ? [
+      ...state.telemetryBuffer, 
+      { sessionId: state.currentSessionId, type: 'odom', data, timestamp: new Date() }
+    ].slice(-500) : state.telemetryBuffer;
+
     return { 
       odomData: data, 
       odomHistory: newHistory,
+      telemetryBuffer: newBuffer,
       // Keep legacy aliases in sync
       encoderData: data,
       encoderHistory: newHistory
@@ -123,20 +175,7 @@ export const useStore = create<GroundControlState>((set) => ({
   // Legacy encoder aliases — point to odom state
   encoderData: null,
   encoderHistory: [],
-  setEncoderData: (data) => set((state) => {
-    const newHistory = [...state.odomHistory, {
-      time: Date.now() % 100000,
-      speed: data.speed,
-      x: data.position.x,
-      y: data.position.y,
-    }].slice(-60);
-    return { 
-      odomData: data, 
-      odomHistory: newHistory,
-      encoderData: data, 
-      encoderHistory: newHistory 
-    };
-  }),
+  setEncoderData: (data) => get().setOdomData(data),
 
   nearestObject: null,
   setNearestObject: (data) => set({ nearestObject: data }),
@@ -146,3 +185,8 @@ export const useStore = create<GroundControlState>((set) => ({
     dataRates: { ...state.dataRates, [sensor]: rate }
   })),
 }));
+
+// Auto-flush telemetry every 3 seconds
+setInterval(() => {
+  useStore.getState().flushTelemetry();
+}, 3000);

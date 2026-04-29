@@ -1,5 +1,7 @@
 import * as ROSLIB from 'roslib';
 import { eventBus } from '../observer/EventBus';
+import { TelemetryService } from '../../services/TelemetryService';
+import { useStore } from '../../store/useStore';
 
 export class RosConnection {
   private static instance: RosConnection;
@@ -12,11 +14,22 @@ export class RosConnection {
     // Initialize without URL to prevent automatic connection attempt
     this.ros = new (ROSLIB as any).Ros();
 
-    this.ros.on('connection', () => {
+    this.ros.on('connection', async () => {
       console.log('Successfully connected to:', this.url);
       this.isConnected = true;
       this.isConnecting = false;
       eventBus.publish('ros:connection', true);
+
+      // Start MongoDB Session
+      const { robotId, operatorName } = useStore.getState();
+      const session = await TelemetryService.startSession({
+        robotId,
+        operatorName
+      });
+      if (session && session._id) {
+        useStore.getState().setCurrentSessionId(session._id);
+        console.log('MongoDB Session Started:', session._id);
+      }
     });
 
     this.ros.on('error', (error: any) => {
