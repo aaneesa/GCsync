@@ -44,7 +44,7 @@ export const EncoderView: React.FC = () => {
       
       <div className="flex-1 flex p-2 gap-2 bg-slate-900/50 overflow-hidden">
         {/* Left: Numeric readouts */}
-        <div className="w-[45%] flex flex-col gap-1.5 min-h-0 overflow-y-auto">
+        <div className="w-[45%] flex flex-col gap-1 min-h-0 overflow-y-auto">
           {/* Speed Hero */}
           <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between">
             <div>
@@ -58,7 +58,7 @@ export const EncoderView: React.FC = () => {
 
           {/* Position */}
           <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
-            <div className="text-[8px] font-bold text-sky-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+            <div className="text-[8px] font-bold text-sky-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <div className="w-1 h-1 rounded-full bg-sky-500" />
               Position
             </div>
@@ -71,7 +71,7 @@ export const EncoderView: React.FC = () => {
 
           {/* Orientation */}
           <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
-            <div className="text-[8px] font-bold text-amber-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+            <div className="text-[8px] font-bold text-amber-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <div className="w-1 h-1 rounded-full bg-amber-500" />
               Orientation
             </div>
@@ -83,7 +83,7 @@ export const EncoderView: React.FC = () => {
 
           {/* Velocities */}
           <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
-            <div className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+            <div className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <div className="w-1 h-1 rounded-full bg-indigo-500" />
               Velocity
             </div>

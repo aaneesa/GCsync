@@ -1,7 +1,5 @@
-import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import React from 'react';
 import { useStore } from '../../store/useStore.ts';
-import * as THREE from 'three';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 
@@ -18,26 +16,6 @@ const DataRow: React.FC<{ label: string; value: string; color: string }> = ({ la
     <span className={`text-[11px] font-mono font-bold tabular-nums ${color}`}>{value}</span>
   </div>
 );
-
-const OrientationCube = () => {
-  const imuData = useStore((state) => state.imuData);
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame(() => {
-    if (meshRef.current && imuData?.orientation) {
-      const q = imuData.orientation;
-      meshRef.current.quaternion.set(q.x, q.y, q.z, q.w);
-    }
-  });
-
-  return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={[2, 0.5, 3]} />
-      <meshStandardMaterial color="#818cf8" wireframe={false} />
-      <axesHelper args={[3]} />
-    </mesh>
-  );
-};
 
 export const ImuView: React.FC = () => {
   const imuData = useStore((state) => state.imuData);
@@ -62,23 +40,11 @@ export const ImuView: React.FC = () => {
       </div>
 
       <div className="flex-1 flex p-2 gap-2 bg-slate-900/50 overflow-hidden">
-        {/* Left: 3D Orientation Cube */}
-        <div className="w-[35%] flex flex-col gap-2">
-          <div className="flex-1 bg-slate-950 border border-slate-800 rounded-lg overflow-hidden relative min-h-0">
-            <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
-              <ambientLight intensity={0.5} />
-              <pointLight position={[10, 10, 10]} intensity={1} color="#6366f1" />
-              <OrientationCube />
-            </Canvas>
-            <div className="absolute bottom-1.5 left-1.5 text-[8px] font-mono text-indigo-400/60 uppercase">Orientation_3D</div>
-          </div>
-        </div>
-
-        {/* Center: Real-time numeric readouts */}
-        <div className="w-[30%] flex flex-col gap-1.5 min-h-0 overflow-y-auto">
+        {/* Left: Real-time numeric readouts */}
+        <div className="w-[40%] flex flex-col gap-1 min-h-0 overflow-y-auto">
           {/* Orientation Quaternion */}
           <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
-            <div className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+            <div className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <div className="w-1 h-1 rounded-full bg-indigo-500" />
               Orientation
             </div>
@@ -92,7 +58,7 @@ export const ImuView: React.FC = () => {
 
           {/* Angular Velocity */}
           <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
-            <div className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+            <div className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <div className="w-1 h-1 rounded-full bg-emerald-500" />
               Angular Vel <span className="text-slate-600">rad/s</span>
             </div>
@@ -105,7 +71,7 @@ export const ImuView: React.FC = () => {
 
           {/* Linear Acceleration */}
           <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5">
-            <div className="text-[8px] font-bold text-rose-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+            <div className="text-[8px] font-bold text-rose-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
               <div className="w-1 h-1 rounded-full bg-rose-500" />
               Accel <span className="text-slate-600">m/s²</span>
             </div>
@@ -118,7 +84,7 @@ export const ImuView: React.FC = () => {
         </div>
 
         {/* Right: Angular velocity chart */}
-        <div className="w-[35%] flex flex-col justify-center bg-slate-950 border border-slate-800 rounded-lg p-2 min-h-0">
+        <div className="w-[60%] flex flex-col justify-center bg-slate-950 border border-slate-800 rounded-lg p-2 min-h-0">
           <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 px-1">Gyro_Stream</div>
           <ResponsiveContainer width="100%" height="90%" minWidth={0} minHeight={0}>
             <LineChart data={history}>

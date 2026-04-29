@@ -11,28 +11,29 @@ const Dashboard: React.FC = () => {
     <DashboardLayout>
       <div className="grid grid-cols-12 grid-rows-6 gap-4 h-full">
         
-        {/* Main Hero Panel - Lidar (Top Focus) */}
+        {/* Main Hero Panel - Lidar */}
         <div className="col-span-8 row-span-4 bento-panel overflow-hidden">
           <LidarView />
         </div>
 
-        {/* System Map (Top Right) */}
+        {/* Primary Sensor Data - IMU (Sidebar Top) */}
         <div className="col-span-4 row-span-3 bento-panel overflow-hidden">
+          <ImuView />
+        </div>
+
+        {/* Primary Sensor Data - Encoder/Odom (Sidebar Bottom) */}
+        <div className="col-span-4 row-span-3 bento-panel overflow-hidden">
+          <EncoderView />
+        </div>
+
+        {/* Secondary Panels - System Map (Bottom Left) */}
+        <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
           <SystemGraph />
         </div>
 
-        {/* Telemetry Stack (Bottom Right) */}
-        <div className="col-span-4 row-span-3 bento-panel overflow-hidden">
+        {/* Secondary Panels - Telemetry (Bottom Center) */}
+        <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
           <TelemetryGraph />
-        </div>
-
-        {/* Sensor Data (Bottom Row) */}
-        <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
-          <ImuView />
-        </div>
-        
-        <div className="col-span-4 row-span-2 bento-panel overflow-hidden">
-          <EncoderView />
         </div>
 
       </div>
