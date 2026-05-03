@@ -92,6 +92,40 @@ npm run dev
 
 ---
 
+Robot Setup & ROS 2 Connection
+1. Install Rosbridge Suite
+On your robot's onboard computer (Jetson or similar), install the Rosbridge Suite for your specific ROS 2 distribution (Humble or Jazzy):  
+
+Bash
+sudo apt update
+sudo apt install ros-<distro>-rosbridge-suite
+2. Launch the WebSocket Server
+Start the rosbridge_websocket node to open a communication channel on port 9090:  
+
+Bash
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+Note: Ensure your robot and the device running the GCsync dashboard are on the same local network.  
+
+3. Verify Hardware Perception Stack
+Ensure your sensor nodes are active and publishing to the standard ROS topics. GCsync is configured to subscribe to and visualize the following:  
+
+IMU: Data from your inertial unit.  
+
+LIDAR: Point cloud or laser scan data.  
+
+Encoders: Odometry and motor feedback.  
+
+Cameras: Ensure Logitech Brio 100 or IMX219 drivers are running if using the vision perception features.  
+
+4. Connect to GCsync
+Open the GCsync Dashboard.  
+
+Navigate to the Connection Settings.  
+
+Enter the Robot's IP Address (e.g., ws://192.168.x.x:9090).  
+
+Click Connect to begin real-time telemetry synchronization.
+
 ## Security & Networking
 - **Port 5001**: Used for the backend to avoid macOS AirPlay conflicts (Port 5000).
 - **CORS**: Enabled for cross-origin communication between the dashboard and database.
